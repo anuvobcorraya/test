@@ -4,11 +4,9 @@
 
 <meta charset="UTF-8">
 
-<meta
-name="viewport"
-content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MADDOX User</title>
+<title>MADDOX User Panel</title>
 
 <style>
 
@@ -34,9 +32,9 @@ body{
     max-width:420px;
     margin:70px auto;
     background:#111827;
+    border:1px solid #293348;
     padding:28px;
     border-radius:20px;
-    border:1px solid #263044;
 }
 
 .logo{
@@ -55,11 +53,11 @@ body{
 input{
     width:100%;
     padding:14px;
-    background:#080b12;
-    color:#fff;
-    border:1px solid #30394d;
-    border-radius:12px;
     margin-bottom:13px;
+    border-radius:11px;
+    border:1px solid #30394d;
+    background:#080b12;
+    color:white;
     outline:none;
 }
 
@@ -71,18 +69,30 @@ button{
 .login-btn{
     width:100%;
     padding:14px;
+    border-radius:11px;
     background:#6366f1;
     color:white;
-    border-radius:12px;
+    font-size:15px;
     font-weight:bold;
+}
+
+.create-btn{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:11px;
+    background:#1f2937;
+    border:1px solid #374151;
+    color:white;
 }
 
 .google-btn{
     width:100%;
     padding:14px;
+    border-radius:11px;
     background:white;
     color:#222;
-    border-radius:12px;
+    font-size:15px;
     font-weight:bold;
 }
 
@@ -94,23 +104,24 @@ button{
 
 .status{
     text-align:center;
+    margin-top:14px;
     color:#a5b4fc;
-    margin-top:13px;
     font-size:14px;
+    line-height:1.5;
 }
 
-.app{
+.panel{
     width:92%;
     max-width:950px;
     margin:auto;
     padding:20px 0;
 }
 
-.topbar{
+.header{
     background:#111827;
-    border:1px solid #263044;
+    border:1px solid #293348;
     padding:18px;
-    border-radius:18px;
+    border-radius:17px;
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -118,11 +129,11 @@ button{
     margin-bottom:22px;
 }
 
-.topbar h1{
+.header h1{
     font-size:21px;
 }
 
-.topbar small{
+.header small{
     color:#8b95a7;
 }
 
@@ -130,20 +141,20 @@ button{
     background:#ef4444;
     color:white;
     padding:10px 15px;
-    border-radius:10px;
+    border-radius:9px;
 }
 
 .notification{
     background:#111827;
-    border:1px solid #263044;
-    padding:19px;
-    border-radius:16px;
+    border:1px solid #293348;
+    border-radius:15px;
+    padding:18px;
     margin-bottom:12px;
 }
 
 .notification h2{
-    margin-bottom:8px;
     font-size:18px;
+    margin-bottom:8px;
 }
 
 .notification p{
@@ -165,9 +176,9 @@ button{
 <body>
 
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
 
-<div id="loginScreen" class="login-box">
+<div id="loginBox" class="login-box">
 
     <div class="logo">
         MADDOX
@@ -200,6 +211,14 @@ button{
     </button>
 
 
+    <button
+        id="createBtn"
+        class="create-btn"
+    >
+        Create New Account
+    </button>
+
+
     <div class="or">
         OR
     </div>
@@ -213,22 +232,16 @@ button{
     </button>
 
 
-    <div
-        id="loginStatus"
-        class="status">
-    </div>
+    <div id="status" class="status"></div>
 
 </div>
 
 
-<!-- USER -->
+<!-- ================= USER PANEL ================= -->
 
-<div
-id="userScreen"
-class="app hidden"
->
+<div id="userPanel" class="panel hidden">
 
-    <div class="topbar">
+    <div class="header">
 
         <div>
 
@@ -252,7 +265,7 @@ class="app hidden"
 
 
     <h2 style="margin-bottom:15px;">
-        📢 Notifications
+        📢 Latest Notifications
     </h2>
 
 
@@ -265,22 +278,24 @@ class="app hidden"
 
 <script type="module">
 
+
+/* ================= FIREBASE ================= */
+
 import {
     initializeApp
-}
-from
+} from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 
 import {
     getAuth,
     signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
     signInWithPopup,
     GoogleAuthProvider,
     onAuthStateChanged,
     signOut
-}
-from
+} from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 
@@ -288,8 +303,7 @@ import {
     getDatabase,
     ref,
     onValue
-}
-from
+} from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 
@@ -321,53 +335,69 @@ const firebaseConfig = {
 const app =
     initializeApp(firebaseConfig);
 
+
 const auth =
     getAuth(app);
 
+
 const db =
     getDatabase(app);
+
 
 const googleProvider =
     new GoogleAuthProvider();
 
 
-const loginScreen =
-    document.getElementById("loginScreen");
+/* ================= ELEMENTS ================= */
 
-const userScreen =
-    document.getElementById("userScreen");
+const loginBox =
+    document.getElementById("loginBox");
+
+const userPanel =
+    document.getElementById("userPanel");
 
 const status =
-    document.getElementById("loginStatus");
+    document.getElementById("status");
 
 
-/* EMAIL LOGIN */
+/* ================= EMAIL LOGIN ================= */
 
 document
 .getElementById("loginBtn")
-.addEventListener("click",async()=>{
+.addEventListener("click", async () => {
 
     const email =
-        document.getElementById("email")
+        document
+        .getElementById("email")
         .value
         .trim();
 
     const password =
-        document.getElementById("password")
+        document
+        .getElementById("password")
         .value;
 
 
-    if(!email || !password){
+    if(!email){
 
         status.textContent =
-        "Email এবং password দিন.";
+        "❌ Email address দিন।";
+
+        return;
+    }
+
+
+    if(!password){
+
+        status.textContent =
+        "❌ Password দিন।";
 
         return;
     }
 
 
     status.textContent =
-    "Logging in...";
+    "⏳ Logging in...";
 
 
     try{
@@ -380,26 +410,184 @@ document
 
         status.textContent="";
 
-    }catch(error){
+    }
 
-        console.error(error);
+    catch(error){
 
-        status.textContent =
-        getError(error.code);
+        console.error(
+            "Firebase Login Error:",
+            error
+        );
+
+
+        switch(error.code){
+
+            case "auth/invalid-credential":
+
+                status.textContent =
+                "❌ Email অথবা password ভুল।";
+
+                break;
+
+
+            case "auth/user-not-found":
+
+                status.textContent =
+                "❌ এই email দিয়ে কোনো account নেই। আগে Create New Account চাপুন।";
+
+                break;
+
+
+            case "auth/wrong-password":
+
+                status.textContent =
+                "❌ Password ভুল।";
+
+                break;
+
+
+            case "auth/invalid-email":
+
+                status.textContent =
+                "❌ Email address সঠিক নয়।";
+
+                break;
+
+
+            case "auth/too-many-requests":
+
+                status.textContent =
+                "⚠️ অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।";
+
+                break;
+
+
+            case "auth/network-request-failed":
+
+                status.textContent =
+                "❌ Internet connection সমস্যা।";
+
+                break;
+
+
+            default:
+
+                status.textContent =
+                "❌ " + error.message;
+
+        }
 
     }
 
 });
 
 
-/* GOOGLE LOGIN */
+/* ================= CREATE ACCOUNT ================= */
+
+document
+.getElementById("createBtn")
+.addEventListener("click", async () => {
+
+    const email =
+        document
+        .getElementById("email")
+        .value
+        .trim();
+
+    const password =
+        document
+        .getElementById("password")
+        .value;
+
+
+    if(!email){
+
+        status.textContent =
+        "❌ Email address দিন।";
+
+        return;
+    }
+
+
+    if(password.length < 6){
+
+        status.textContent =
+        "❌ Password কমপক্ষে 6 characters হতে হবে।";
+
+        return;
+    }
+
+
+    status.textContent =
+    "⏳ Creating account...";
+
+
+    try{
+
+        await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+
+        status.textContent =
+        "✅ Account created successfully!";
+
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+
+        switch(error.code){
+
+            case "auth/email-already-in-use":
+
+                status.textContent =
+                "⚠️ এই email দিয়ে account আগে থেকেই আছে। Login করুন।";
+
+                break;
+
+
+            case "auth/weak-password":
+
+                status.textContent =
+                "❌ Password কমপক্ষে 6 characters হতে হবে।";
+
+                break;
+
+
+            case "auth/invalid-email":
+
+                status.textContent =
+                "❌ Email address সঠিক নয়।";
+
+                break;
+
+
+            default:
+
+                status.textContent =
+                "❌ " + error.message;
+
+        }
+
+    }
+
+});
+
+
+/* ================= GOOGLE LOGIN ================= */
 
 document
 .getElementById("googleBtn")
-.addEventListener("click",async()=>{
+.addEventListener("click", async () => {
 
     status.textContent =
-    "Opening Google...";
+    "⏳ Opening Google Sign-In...";
 
 
     try{
@@ -409,83 +597,143 @@ document
             googleProvider
         );
 
+
         status.textContent="";
 
-    }catch(error){
+    }
 
-        console.error(error);
+    catch(error){
 
-        status.textContent =
-        getError(error.code);
+        console.error(
+            "Google Login Error:",
+            error
+        );
+
+
+        switch(error.code){
+
+            case "auth/popup-blocked":
+
+                status.textContent =
+                "❌ Browser popup block করেছে। Popup allow করুন।";
+
+                break;
+
+
+            case "auth/popup-closed-by-user":
+
+                status.textContent =
+                "⚠️ Google login window বন্ধ করা হয়েছে।";
+
+                break;
+
+
+            case "auth/unauthorized-domain":
+
+                status.textContent =
+                "❌ এই GitHub Pages domain Firebase Authorized Domains-এ নেই।";
+
+                break;
+
+
+            case "auth/operation-not-allowed":
+
+                status.textContent =
+                "❌ Firebase Console-এ Google Sign-In Enable করুন।";
+
+                break;
+
+
+            default:
+
+                status.textContent =
+                "❌ " + error.message;
+
+        }
 
     }
 
 });
 
 
-/* AUTH */
+/* ================= AUTH STATE ================= */
 
-onAuthStateChanged(auth,(user)=>{
+onAuthStateChanged(
+    auth,
+    (user) => {
 
-    if(user){
+        if(user){
 
-        loginScreen
-        .classList
-        .add("hidden");
+            loginBox
+            .classList
+            .add("hidden");
 
-        userScreen
-        .classList
-        .remove("hidden");
 
-        document
-        .getElementById("userEmail")
-        .textContent =
-        user.email || "";
+            userPanel
+            .classList
+            .remove("hidden");
 
-        loadNotifications();
 
-    }else{
+            document
+            .getElementById("userEmail")
+            .textContent =
+            user.email ||
+            "Google User";
 
-        loginScreen
-        .classList
-        .remove("hidden");
 
-        userScreen
-        .classList
-        .add("hidden");
+            loadNotifications();
+
+        }
+
+        else{
+
+            loginBox
+            .classList
+            .remove("hidden");
+
+
+            userPanel
+            .classList
+            .add("hidden");
+
+        }
 
     }
+);
 
-});
 
-
-/* LOGOUT */
+/* ================= LOGOUT ================= */
 
 document
 .getElementById("logoutBtn")
-.addEventListener("click",async()=>{
+.addEventListener("click", async () => {
 
     await signOut(auth);
 
 });
 
 
-/* NOTIFICATIONS */
+/* ================= NOTIFICATIONS ================= */
 
 function loadNotifications(){
 
     const notificationRef =
-        ref(db,"notifications");
+        ref(
+            db,
+            "notifications"
+        );
 
 
     onValue(
         notificationRef,
-        (snapshot)=>{
+        (snapshot) => {
 
             const list =
-                document.getElementById(
+                document
+                .getElementById(
                     "notificationList"
                 );
+
 
             list.innerHTML="";
 
@@ -493,7 +741,7 @@ function loadNotifications(){
             if(!snapshot.exists()){
 
                 list.innerHTML =
-                "<p>No notifications yet.</p>";
+                "<p>No notifications available.</p>";
 
                 return;
             }
@@ -505,47 +753,53 @@ function loadNotifications(){
 
             const items =
                 Object.values(data)
-                .sort((a,b)=>
+                .sort(
+                    (a,b) =>
                     (b.createdAt || 0) -
                     (a.createdAt || 0)
                 );
 
 
-            items.forEach(item=>{
+            items.forEach(item => {
 
                 const box =
-                    document.createElement("div");
+                    document
+                    .createElement("div");
 
                 box.className =
                     "notification";
 
 
                 const title =
-                    document.createElement("h2");
+                    document
+                    .createElement("h2");
 
                 title.textContent =
                     item.title || "";
 
 
                 const message =
-                    document.createElement("p");
+                    document
+                    .createElement("p");
 
                 message.textContent =
                     item.message || "";
 
 
                 const date =
-                    document.createElement("div");
+                    document
+                    .createElement("div");
 
-                date.className="date";
+                date.className =
+                    "date";
 
 
                 if(item.createdAt){
 
                     date.textContent =
-                        new Date(
-                            item.createdAt
-                        ).toLocaleString();
+                    new Date(
+                        item.createdAt
+                    ).toLocaleString();
 
                 }
 
@@ -560,49 +814,21 @@ function loadNotifications(){
 
             });
 
+        },
+
+        (error) => {
+
+            console.error(error);
+
+            document
+            .getElementById(
+                "notificationList"
+            )
+            .innerHTML =
+            "<p>❌ Database permission error.</p>";
+
         }
     );
-
-}
-
-
-/* ERROR */
-
-function getError(code){
-
-    switch(code){
-
-        case "auth/invalid-credential":
-            return "Email অথবা password ভুল।";
-
-        case "auth/user-not-found":
-            return "এই email Firebase-এ নেই।";
-
-        case "auth/wrong-password":
-            return "Password ভুল।";
-
-        case "auth/invalid-email":
-            return "Email সঠিক নয়।";
-
-        case "auth/popup-blocked":
-            return "Browser popup block করেছে। Popup allow করুন।";
-
-        case "auth/popup-closed-by-user":
-            return "Google login window বন্ধ হয়ে গেছে।";
-
-        case "auth/unauthorized-domain":
-            return "এই website/domain Firebase-এ authorized নয়।";
-
-        case "auth/operation-not-allowed":
-            return "Firebase Console থেকে এই login method Enable করুন।";
-
-        case "auth/network-request-failed":
-            return "Internet connection পরীক্ষা করুন।";
-
-        default:
-            return "Error: " + code;
-
-    }
 
 }
 

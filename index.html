@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>MADDOX User</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#080b12;
+    color:#fff;
+    min-height:100vh;
+}
+
+.hidden{
+    display:none!important;
+}
+
+.login-box{
+    width:92%;
+    max-width:420px;
+    margin:70px auto;
+    background:#111827;
+    padding:28px;
+    border-radius:20px;
+    border:1px solid #263044;
+}
+
+.logo{
+    text-align:center;
+    font-size:29px;
+    font-weight:bold;
+    margin-bottom:7px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#8b95a7;
+    margin-bottom:25px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    background:#080b12;
+    color:#fff;
+    border:1px solid #30394d;
+    border-radius:12px;
+    margin-bottom:13px;
+    outline:none;
+}
+
+button{
+    border:0;
+    cursor:pointer;
+}
+
+.login-btn{
+    width:100%;
+    padding:14px;
+    background:#6366f1;
+    color:white;
+    border-radius:12px;
+    font-weight:bold;
+}
+
+.google-btn{
+    width:100%;
+    padding:14px;
+    background:white;
+    color:#222;
+    border-radius:12px;
+    font-weight:bold;
+}
+
+.or{
+    text-align:center;
+    color:#737e96;
+    margin:18px 0;
+}
+
+.status{
+    text-align:center;
+    color:#a5b4fc;
+    margin-top:13px;
+    font-size:14px;
+}
+
+.app{
+    width:92%;
+    max-width:950px;
+    margin:auto;
+    padding:20px 0;
+}
+
+.topbar{
+    background:#111827;
+    border:1px solid #263044;
+    padding:18px;
+    border-radius:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-bottom:22px;
+}
+
+.topbar h1{
+    font-size:21px;
+}
+
+.topbar small{
+    color:#8b95a7;
+}
+
+.logout{
+    background:#ef4444;
+    color:white;
+    padding:10px 15px;
+    border-radius:10px;
+}
+
+.notification{
+    background:#111827;
+    border:1px solid #263044;
+    padding:19px;
+    border-radius:16px;
+    margin-bottom:12px;
+}
+
+.notification h2{
+    margin-bottom:8px;
+    font-size:18px;
+}
+
+.notification p{
+    color:#b9c1d1;
+    line-height:1.6;
+    white-space:pre-wrap;
+}
+
+.date{
+    color:#737e96;
+    font-size:12px;
+    margin-top:12px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- LOGIN -->
+
+<div id="loginScreen" class="login-box">
+
+    <div class="logo">
+        MADDOX
+    </div>
+
+    <div class="subtitle">
+        Welcome Back 👋
+    </div>
+
+
+    <input
+        id="email"
+        type="email"
+        placeholder="Email address"
+    >
+
+
+    <input
+        id="password"
+        type="password"
+        placeholder="Password"
+    >
+
+
+    <button
+        id="loginBtn"
+        class="login-btn"
+    >
+        Login
+    </button>
+
+
+    <div class="or">
+        OR
+    </div>
+
+
+    <button
+        id="googleBtn"
+        class="google-btn"
+    >
+        🔵 Continue with Google
+    </button>
+
+
+    <div
+        id="loginStatus"
+        class="status">
+    </div>
+
+</div>
+
+
+<!-- USER -->
+
+<div
+id="userScreen"
+class="app hidden"
+>
+
+    <div class="topbar">
+
+        <div>
+
+            <h1>
+                🏠 User Panel
+            </h1>
+
+            <small id="userEmail"></small>
+
+        </div>
+
+
+        <button
+            id="logoutBtn"
+            class="logout"
+        >
+            Logout
+        </button>
+
+    </div>
+
+
+    <h2 style="margin-bottom:15px;">
+        📢 Notifications
+    </h2>
+
+
+    <div id="notificationList">
+        Loading...
+    </div>
+
+</div>
+
+
+<script type="module">
+
+import {
+    initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    onAuthStateChanged,
+    signOut
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+import {
+    getDatabase,
+    ref,
+    onValue
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+const firebaseConfig = {
+
+    apiKey:
+    "AIzaSyABtoI1AIkSpkGrg1P1Sw7-Q5xBB2ZSL6Y",
+
+    authDomain:
+    "anurag-33a0a.firebaseapp.com",
+
+    databaseURL:
+    "https://anurag-33a0a-default-rtdb.firebaseio.com",
+
+    projectId:
+    "anurag-33a0a",
+
+    storageBucket:
+    "anurag-33a0a.firebasestorage.app",
+
+    messagingSenderId:
+    "239204466277",
+
+    appId:
+    "1:239204466277:web:239a0a707e3c7b56b6908c"
+};
+
+
+const app =
+    initializeApp(firebaseConfig);
+
+const auth =
+    getAuth(app);
+
+const db =
+    getDatabase(app);
+
+const googleProvider =
+    new GoogleAuthProvider();
+
+
+const loginScreen =
+    document.getElementById("loginScreen");
+
+const userScreen =
+    document.getElementById("userScreen");
+
+const status =
+    document.getElementById("loginStatus");
+
+
+/* EMAIL LOGIN */
+
+document
+.getElementById("loginBtn")
+.addEventListener("click",async()=>{
+
+    const email =
+        document.getElementById("email")
+        .value
+        .trim();
+
+    const password =
+        document.getElementById("password")
+        .value;
+
+
+    if(!email || !password){
+
+        status.textContent =
+        "Email এবং password দিন.";
+
+        return;
+    }
+
+
+    status.textContent =
+    "Logging in...";
+
+
+    try{
+
+        await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+        status.textContent="";
+
+    }catch(error){
+
+        console.error(error);
+
+        status.textContent =
+        getError(error.code);
+
+    }
+
+});
+
+
+/* GOOGLE LOGIN */
+
+document
+.getElementById("googleBtn")
+.addEventListener("click",async()=>{
+
+    status.textContent =
+    "Opening Google...";
+
+
+    try{
+
+        await signInWithPopup(
+            auth,
+            googleProvider
+        );
+
+        status.textContent="";
+
+    }catch(error){
+
+        console.error(error);
+
+        status.textContent =
+        getError(error.code);
+
+    }
+
+});
+
+
+/* AUTH */
+
+onAuthStateChanged(auth,(user)=>{
+
+    if(user){
+
+        loginScreen
+        .classList
+        .add("hidden");
+
+        userScreen
+        .classList
+        .remove("hidden");
+
+        document
+        .getElementById("userEmail")
+        .textContent =
+        user.email || "";
+
+        loadNotifications();
+
+    }else{
+
+        loginScreen
+        .classList
+        .remove("hidden");
+
+        userScreen
+        .classList
+        .add("hidden");
+
+    }
+
+});
+
+
+/* LOGOUT */
+
+document
+.getElementById("logoutBtn")
+.addEventListener("click",async()=>{
+
+    await signOut(auth);
+
+});
+
+
+/* NOTIFICATIONS */
+
+function loadNotifications(){
+
+    const notificationRef =
+        ref(db,"notifications");
+
+
+    onValue(
+        notificationRef,
+        (snapshot)=>{
+
+            const list =
+                document.getElementById(
+                    "notificationList"
+                );
+
+            list.innerHTML="";
+
+
+            if(!snapshot.exists()){
+
+                list.innerHTML =
+                "<p>No notifications yet.</p>";
+
+                return;
+            }
+
+
+            const data =
+                snapshot.val();
+
+
+            const items =
+                Object.values(data)
+                .sort((a,b)=>
+                    (b.createdAt || 0) -
+                    (a.createdAt || 0)
+                );
+
+
+            items.forEach(item=>{
+
+                const box =
+                    document.createElement("div");
+
+                box.className =
+                    "notification";
+
+
+                const title =
+                    document.createElement("h2");
+
+                title.textContent =
+                    item.title || "";
+
+
+                const message =
+                    document.createElement("p");
+
+                message.textContent =
+                    item.message || "";
+
+
+                const date =
+                    document.createElement("div");
+
+                date.className="date";
+
+
+                if(item.createdAt){
+
+                    date.textContent =
+                        new Date(
+                            item.createdAt
+                        ).toLocaleString();
+
+                }
+
+
+                box.appendChild(title);
+
+                box.appendChild(message);
+
+                box.appendChild(date);
+
+                list.appendChild(box);
+
+            });
+
+        }
+    );
+
+}
+
+
+/* ERROR */
+
+function getError(code){
+
+    switch(code){
+
+        case "auth/invalid-credential":
+            return "Email অথবা password ভুল।";
+
+        case "auth/user-not-found":
+            return "এই email Firebase-এ নেই।";
+
+        case "auth/wrong-password":
+            return "Password ভুল।";
+
+        case "auth/invalid-email":
+            return "Email সঠিক নয়।";
+
+        case "auth/popup-blocked":
+            return "Browser popup block করেছে। Popup allow করুন।";
+
+        case "auth/popup-closed-by-user":
+            return "Google login window বন্ধ হয়ে গেছে।";
+
+        case "auth/unauthorized-domain":
+            return "এই website/domain Firebase-এ authorized নয়।";
+
+        case "auth/operation-not-allowed":
+            return "Firebase Console থেকে এই login method Enable করুন।";
+
+        case "auth/network-request-failed":
+            return "Internet connection পরীক্ষা করুন।";
+
+        default:
+            return "Error: " + code;
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
